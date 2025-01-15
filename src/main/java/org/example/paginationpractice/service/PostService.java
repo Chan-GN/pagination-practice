@@ -2,6 +2,7 @@ package org.example.paginationpractice.service;
 
 import org.example.paginationpractice.dto.PostResponse;
 import org.example.paginationpractice.dto.PostSearchCondition;
+import org.example.paginationpractice.repository.PostQueryRepository;
 import org.example.paginationpractice.repository.PostRepository;
 import org.example.paginationpractice.repository.PostSpecification;
 import org.springframework.data.domain.Page;
@@ -20,7 +21,9 @@ public class PostService {
 
 	private final PostRepository postRepository;
 
-	public Page<PostResponse> searchPosts(PostSearchCondition condition) {
+	private final PostQueryRepository postQueryRepository;
+
+	public Page<PostResponse> searchPostsWithSpecification(PostSearchCondition condition) {
 		// 정렬 조건 생성
 		Sort sort = Sort.by(
 				Sort.Direction.fromString(condition.getSortDirection()),
@@ -47,6 +50,30 @@ public class PostService {
 						),
 						pageable)
 				.map(PostResponse::from);  // Entity를 DTO로 변환
+	}
+
+	public Page<PostResponse> searchPostsWithQueryDSL(PostSearchCondition condition) {
+		Sort sort = Sort.by(
+				Sort.Direction.fromString(condition.getSortDirection()),
+				condition.getSortBy()
+		);
+
+		Pageable pageable = PageRequest.of(
+				condition.getPageNumber(),
+				condition.getPageSize(),
+				sort
+		);
+
+		return postQueryRepository.searchPosts(
+				condition.getTitle(),
+				condition.getAuthor(),
+				condition.getCategory(),
+				condition.getIsPublished(),
+				condition.getStartDate(),
+				condition.getEndDate(),
+				condition.getMinLikes(),
+				pageable
+		).map(PostResponse::from);
 	}
 
 }

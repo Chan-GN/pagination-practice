@@ -17,9 +17,14 @@ public class PostController {
 
 	private final PostService postService;
 
-	@GetMapping
-	public Page<PostResponse> searchPosts(PostSearchCondition condition) {
-		return postService.searchPosts(condition);
+	@GetMapping("/specification")
+	public Page<PostResponse> searchPostsWithSpecification(PostSearchCondition condition) {
+		return postService.searchPostsWithSpecification(condition);
+	}
+
+	@GetMapping("/querydsl")
+	public Page<PostResponse> searchPostsWithQueryDSL(PostSearchCondition condition) {
+		return postService.searchPostsWithQueryDSL(condition);
 	}
 
 }
